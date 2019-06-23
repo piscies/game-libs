@@ -26,5 +26,12 @@ namespace Piscies.Game
         {
             return randomGenerator.Next(minValue, maxValue + 1);
         }
+
+        public static bool FlipCoin()
+        {
+            if (Roll(2) == 1)
+                return true;
+            return false;
+        }
     }
 }

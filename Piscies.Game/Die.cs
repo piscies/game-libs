@@ -33,5 +33,11 @@ namespace Piscies.Game
                 return true;
             return false;
         }
+
+        public static double RollPercentageInDouble()
+        {
+            double value = RandomNumber(0, 100000);
+            return value / 1000;
+        }
     }
 }

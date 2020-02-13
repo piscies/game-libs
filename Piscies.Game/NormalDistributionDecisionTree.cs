@@ -10,7 +10,7 @@ namespace Piscies.Game
         private List<PercentageDecision> decisions;
         private PercentageDecisionTree decisionTree;
 
-        public enum NormaDistributionType
+        public enum NormalDistributionType
         {
             Normal = 1,
             Upper = 2,
@@ -42,7 +42,7 @@ namespace Piscies.Game
             decisionTree.AddDecisions(decisions);
         }
 
-        public NormalDistributionDecisionTree(int minValue, int maxValue)
+        public NormalDistributionDecisionTree(int minValue, int maxValue, NormalDistributionType distributionType)
         {
             if (maxValue - minValue < 5)
                 throw new Exception("NormalDistributionDecisionTree should have at least a gap of 6 numbers to start with");
@@ -58,11 +58,73 @@ namespace Piscies.Game
             for (int i = 0, j = minValue; j <= maxValue; i++, j++)
                 decisionArray[i] = j;
 
+            switch(distributionType)
+            {
+                case NormalDistributionType.Normal:
+                    CreateBalancedNormalDecisionTree(decisionArray);
+                    break;
+                case NormalDistributionType.Upper:
+                    CreateUpperOrientedDecisionTree(decisionArray);
+                    break;
+                case NormalDistributionType.Lower:
+                    CreateLowerOrientedDecisionTree(decisionArray);
+                    break;
+            }
+        }
+
+        private void CreateBalancedNormalDecisionTree(int[] decisionArray)
+        {
             double currentChance = 50.0;
             for (int i = 0; i < decisionArray.Length / 2; i++)
             {
                 int index1 = 0 + (decisionArray.Length / 2) - i - 1;
                 int index2 = decisionArray.Length - (decisionArray.Length / 2) + i;
+
+                currentChance /= 2;
+
+                decisions.Add(new PercentageDecision(decisionArray[index1], currentChance));
+                decisions.Add(new PercentageDecision(decisionArray[index2], currentChance));
+            }
+
+            //Check whats left and adds to main decisions
+            double leftoverValue = 100.0 - decisions.Sum(x => x.Percentage);
+            decisions.Where(x => x.Percentage == 25.0).ToList().ForEach(x => x.Percentage += leftoverValue / 2);
+
+            //Creates the decision tree
+            decisionTree = new PercentageDecisionTree();
+            decisionTree.AddDecisions(decisions);
+        }
+
+        private void CreateUpperOrientedDecisionTree(int[] decisionArray)
+        {
+            double currentChance = 50.0;
+            for (int i = 0; i < decisionArray.Length / 2; i++)
+            {
+                int index1 = decisionArray.Length -1 - (2 * i);
+                int index2 = decisionArray.Length -1 - (2 * i + 1);
+
+                currentChance /= 2;
+
+                decisions.Add(new PercentageDecision(decisionArray[index1], currentChance));
+                decisions.Add(new PercentageDecision(decisionArray[index2], currentChance));
+            }
+
+            //Check whats left and adds to main decisions
+            double leftoverValue = 100.0 - decisions.Sum(x => x.Percentage);
+            decisions.Where(x => x.Percentage == 25.0).ToList().ForEach(x => x.Percentage += leftoverValue / 2);
+
+            //Creates the decision tree
+            decisionTree = new PercentageDecisionTree();
+            decisionTree.AddDecisions(decisions);
+        }
+
+        private void CreateLowerOrientedDecisionTree(int[] decisionArray)
+        {
+            double currentChance = 50.0;
+            for (int i = 0; i < decisionArray.Length / 2; i++)
+            {
+                int index1 = 0 + (2 * i);
+                int index2 = 0 + (2 * i + 1);
 
                 currentChance /= 2;
 
